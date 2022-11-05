@@ -12,8 +12,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    defaults:
-      working-directory: ./mysql-router
 
     steps:
       - name: Checkout
@@ -34,7 +32,7 @@ jobs:
 
       - name: Generate image tag
         run: |
-          bash tag.sh | awk '{for (i=1;i<=NF;i++) {print "type=raw,value="$i} }' >> $GITHUB_OUTPUT
+          bash mysql-router/tag.sh | awk '{for (i=1;i<=NF;i++) {print "type=raw,value="$i} }' >> $GITHUB_OUTPUT
         id: img_tag
 
       - name: Set up docker metadata
@@ -53,6 +51,6 @@ jobs:
       - name: Build mysql-router
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: mysql-router/8.0/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
