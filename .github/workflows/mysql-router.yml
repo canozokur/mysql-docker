@@ -32,8 +32,9 @@ jobs:
 
       - name: Generate image tag
         run: |
-          bash mysql-router/tag.sh | awk '{for (i=1;i<=NF;i++) {print "type=raw,value="$i} }' >> $GITHUB_OUTPUT
+          bash tag.sh | awk '{for (i=1;i<=NF;i++) {print "type=raw,value="$i} }' >> $GITHUB_OUTPUT
         id: img_tag
+        working-directory: ./mysql-router
 
       - name: Set up docker metadata
         id: meta
