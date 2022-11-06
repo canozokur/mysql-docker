@@ -32,7 +32,8 @@ jobs:
 
       - name: Generate image tag
         run: |
-          bash tag.sh | awk '{for (i=1;i<=NF;i++) {print "type=raw,value="$i} }' >> $GITHUB_OUTPUT
+          IMG_TAG=$(bash tag.sh | awk '{for (i=1;i<=NF;i++) {print "type=raw,value="$i} }')
+          echo "IMG_TAG=$IMG_TAG" >> $GITHUB_OUTPUT
         id: img_tag
         working-directory: ./mysql-router
 
@@ -42,7 +43,7 @@ jobs:
         with:
           images: ghcr.io/canozokur/mysql-router
           tags: |
-            type=raw,value=${{ steps.img_tag.outputs.IMG_TAG }}
+            ${{ steps.img_tag.outputs.IMG_TAG }}
 
       - name: Set up docker buildx
         uses: docker/setup-buildx-action@v2
