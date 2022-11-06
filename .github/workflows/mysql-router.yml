@@ -56,6 +56,6 @@ jobs:
       - name: Build mysql-router
         uses: docker/build-push-action@v3
         with:
-          context: mysql-router/8.0/Dockerfile
+          context: mysql-router/8.0
           push: true
           tags: ${{ steps.meta.outputs.tags }}
