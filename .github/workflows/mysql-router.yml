@@ -32,8 +32,11 @@ jobs:
 
       - name: Generate image tag
         run: |
-          IMG_TAG=$(bash tag.sh | awk '{for (i=1;i<=NF;i++) {print "type=raw,value="$i} }')
-          echo "IMG_TAG=$IMG_TAG" >> $GITHUB_OUTPUT
+          echo 'IMG_TAG<<EOF' >> $GITHUB_OUTPUT
+          for tag in $(bash tag.sh); do
+            echo "$tag" >> $GITHUB_OUTPUT;
+          done
+          echo "EOF" >> $GITHUB_OUTPUT
         id: img_tag
         working-directory: ./mysql-router
 
