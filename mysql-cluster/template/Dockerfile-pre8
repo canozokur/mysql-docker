@@ -15,7 +15,7 @@
 
 FROM oraclelinux:7-slim
 
-ARG MYSQL_CLUSTER_PACKAGE=%%MYSQL_CLUSTER_PACKAGE%%
+ARG MYSQL_SERVER_PACKAGE=%%MYSQL_SERVER_PACKAGE%%
 ARG MYSQL_SHELL_PACKAGE=%%MYSQL_SHELL_PACKAGE%%
 
 # Setup repositories for minimal packages (all versions)
@@ -24,7 +24,7 @@ RUN rpm -U %%REPO%%/mysql-cluster-community-minimal-release-el7.rpm \
 
 # Install server and shell 8.0
 RUN yum install -y $MYSQL_SHELL_PACKAGE \
-  && yum install -y $MYSQL_CLUSTER_PACKAGE --enablerepo=%%REPO_NAME%%-cluster%%REPO_VERSION%%-minimal\
+  && yum install -y $MYSQL_SERVER_PACKAGE --enablerepo=mysql-cluster%%REPO_VERSION%%-community-minimal\
   && yum clean all \
   && mkdir /docker-entrypoint-initdb.d
 
@@ -40,6 +40,6 @@ COPY cnf/mysql-cluster.cnf /etc/
 
 ENTRYPOINT ["/entrypoint.sh"]
 HEALTHCHECK CMD /healthcheck.sh
-EXPOSE 3306 33060 2202 1186
+EXPOSE %%PORTS%%
 CMD ["mysqld"]
 

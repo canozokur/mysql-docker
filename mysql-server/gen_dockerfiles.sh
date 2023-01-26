@@ -22,7 +22,15 @@ set -e
 source ./VERSION
 
 REPO=https://repo.mysql.com; [ -n "$1" ] && REPO=$1
+CONFIG_PACKAGE_NAME=mysql80-community-release-el8.rpm; [ -n "$2" ] && CONFIG_PACKAGE_NAME=$2
+CONFIG_PACKAGE_NAME_MINIMAL=mysql-community-minimal-release-el8.rpm; [ -n "$3" ] && CONFIG_PACKAGE_NAME_MINIMAL=$3
 
+REPO_NAME_SERVER=mysql80-community-minimal; [ -n "$4" ] && REPO_NAME_SERVER=$4
+REPO_NAME_TOOLS=mysql-tools-community; [ -n "$5" ] && REPO_NAME_TOOLS=$5
+
+MYSQL_SERVER_PACKAGE_NAME="mysql-community-server-minimal"; [ -n "$6" ] && MYSQL_SERVER_PACKAGE_NAME=$6
+MYSQL_SHELL_PACKAGE_NAME="mysql-shell"; [ -n "$7" ] && MYSQL_SHELL_PACKAGE_NAME=$7
+MYSQL_VERSION=""; [ -n "$8" ] && MYSQL_VERSION=$8
 # 33060 is the default port for the mysqlx plugin, new to 5.7
 declare -A PORTS
 PORTS["5.7"]="3306 33060"
@@ -45,19 +53,31 @@ PRECREATE_DIRS["8.0"]="/var/lib/mysql /var/lib/mysql-files /var/lib/mysql-keyrin
 
 for VERSION in "${!MYSQL_SERVER_VERSIONS[@]}"
 do
+  if [ -n "${MYSQL_VERSION}" ]; then
+    MYSQL_SERVER_PACKAGE=${MYSQL_SERVER_PACKAGE_NAME}-${MYSQL_VERSION}
+    MYSQL_SHELL_PACKAGE=${MYSQL_SHELL_PACKAGE_NAME}-${MYSQL_VERSION}
+  else
+    MYSQL_SERVER_PACKAGE=${MYSQL_SERVER_PACKAGE_NAME}
+    MYSQL_SHELL_PACKAGE=${MYSQL_SHELL_PACKAGE_NAME}
+  fi
   # Dockerfiles
   MYSQL_SERVER_REPOPATH=yum/mysql-$VERSION-community/docker/x86_64
   DOCKERFILE_TEMPLATE=template/Dockerfile
   if [ "${VERSION}" != "8.0" ]; then
     DOCKERFILE_TEMPLATE=template/Dockerfile-pre8
   fi
-  sed 's#%%MYSQL_SERVER_PACKAGE%%#'"mysql-community-server-minimal-${MYSQL_SERVER_VERSIONS[${VERSION}]}"'#g' $DOCKERFILE_TEMPLATE > tmpfile
+  sed 's#%%MYSQL_SERVER_PACKAGE%%#'"${MYSQL_SERVER_PACKAGE}"'#g' $DOCKERFILE_TEMPLATE > tmpfile
   sed -i 's#%%REPO%%#'"${REPO}"'#g' tmpfile
   REPO_VERSION=${VERSION//\./}
   sed -i 's#%%REPO_VERSION%%#'"${REPO_VERSION}"'#g' tmpfile
 
+  sed -i 's#%%CONFIG_PACKAGE_NAME%%#'"${CONFIG_PACKAGE_NAME}"'#g' tmpfile
+  sed -i 's#%%CONFIG_PACKAGE_NAME_MINIMAL%%#'"${CONFIG_PACKAGE_NAME_MINIMAL}"'#g' tmpfile
+  sed -i 's#%%REPO_NAME_SERVER%%#'"${REPO_NAME_SERVER}"'#g' tmpfile
+  sed -i 's#%%REPO_NAME_TOOLS%%#'"${REPO_NAME_TOOLS}"'#g' tmpfile
+
   if [[ ! -z ${MYSQL_SHELL_VERSIONS[${VERSION}]} ]]; then
-    sed -i 's#%%MYSQL_SHELL_PACKAGE%%#'"mysql-shell-${MYSQL_SHELL_VERSIONS[${VERSION}]}"'#g' tmpfile
+    sed -i 's#%%MYSQL_SHELL_PACKAGE%%#'"${MYSQL_SHELL_PACKAGE}"'#g' tmpfile
   else
     sed -i 's#%%MYSQL_SHELL_PACKAGE%%#'""'#g' tmpfile
   fi
@@ -69,8 +89,9 @@ do
   if [ ! -d "${VERSION}/inspec" ]; then
     mkdir "${VERSION}/inspec"
   fi
-  sed 's#%%MYSQL_SERVER_VERSION%%#'"${MYSQL_SERVER_VERSIONS[${VERSION}]}"'#g' template/control.rb > tmpFile
-  sed -i 's#%%MYSQL_SHELL_VERSION%%#'"${MYSQL_SHELL_VERSIONS[${VERSION}]}"'#g' tmpFile
+  sed 's#%%MYSQL_VERSION%%#'"${MYSQL_VERSION}"'#g' template/control.rb > tmpFile
+  sed -i 's#%%MYSQL_SERVER_PACKAGE_NAME%%#'"${MYSQL_SERVER_PACKAGE_NAME}"'#g' tmpFile
+  sed -i 's#%%MYSQL_SHELL_PACKAGE_NAME%%#'"${MYSQL_SHELL_PACKAGE_NAME}"'#g' tmpFile
   sed -i 's#%%MAJOR_VERSION%%#'"${VERSION}"'#g' tmpFile
   if [ "${VERSION}" == "5.7" ]; then
     sed -i 's#%%PORTS%%#'"3306/tcp, 33060/tcp"'#g' tmpFile

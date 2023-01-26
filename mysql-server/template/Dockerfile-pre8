@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ RUN rpm -U %%REPO%%/mysql-community-minimal-release-el7.rpm \
 
 # Install server and shell 8.0
 RUN yum install -y $MYSQL_SHELL_PACKAGE \
-  && yum install -y $MYSQL_SERVER_PACKAGE --enablerepo=mysql57-server-minimal\
+  && yum install -y $MYSQL_SERVER_PACKAGE --enablerepo=mysql57-community-minimal\
   && yum clean all \
   && mkdir /docker-entrypoint-initdb.d
 

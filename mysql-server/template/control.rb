@@ -10,12 +10,12 @@ control 'container' do
 end
 control 'packages' do
   impact 0.5
-  describe package('mysql-community-server-minimal') do
+  describe package('%%MYSQL_SERVER_PACKAGE_NAME%%') do
     it { should be_installed }
-    its ('version') { should match '%%MYSQL_SERVER_VERSION%%.*' }
+    its ('version') { should match '%%MYSQL_VERSION%%.*' }
   end
-  describe package('mysql-shell') do
+  describe package('%%MYSQL_SHELL_PACKAGE_NAME%%') do
     it { should be_installed }
-    its ('version') { should match '%%MYSQL_SHELL_VERSION%%.*' }
+    its ('version') { should match '%%MYSQL_VERSION%%.*' }
   end
 end

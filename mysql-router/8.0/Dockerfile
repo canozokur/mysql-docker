@@ -14,8 +14,8 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 FROM oraclelinux:8-slim
 
-ARG MYSQL_CLIENT_PACKAGE=mysql-community-client-8.0.31
-ARG MYSQL_ROUTER_PACKAGE=mysql-router-community-8.0.31
+ARG MYSQL_CLIENT_PACKAGE=mysql-community-client-8.0.32
+ARG MYSQL_ROUTER_PACKAGE=mysql-router-community-8.0.32
 
 RUN /usr/sbin/groupadd -g 999 -r mysqlrouter >/dev/null \
   && /usr/sbin/useradd -M -N -u 999 -g mysqlrouter -r -d /var/lib/mysqlrouter -s /bin/false \

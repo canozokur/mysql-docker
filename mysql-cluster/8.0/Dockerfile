@@ -15,8 +15,8 @@
 
 FROM oraclelinux:8-slim
 
-ARG MYSQL_CLUSTER_PACKAGE=mysql-cluster-community-server-minimal-8.0.31
-ARG MYSQL_SHELL_PACKAGE=mysql-shell-8.0.31
+ARG MYSQL_SERVER_PACKAGE=mysql-cluster-community-server-minimal
+ARG MYSQL_SHELL_PACKAGE=mysql-shell
 
 # Setup repositories for minimal packages (all versions)
 RUN rpm -U https://repo.mysql.com/mysql-cluster-community-minimal-release-el8.rpm \
@@ -24,9 +24,9 @@ RUN rpm -U https://repo.mysql.com/mysql-cluster-community-minimal-release-el8.rp
 
 # Install server and shell 8.0
 RUN microdnf update && echo "[main]" > /etc/dnf/dnf.conf \
-  && microdnf install -y $MYSQL_SHELL_PACKAGE \
+  && microdnf install -y --enablerepo=mysql-tools-community $MYSQL_SHELL_PACKAGE \
   && microdnf install -y --disablerepo=ol8_appstream \
-   --enablerepo=mysql-cluster80-minimal $MYSQL_CLUSTER_PACKAGE \
+   --enablerepo=mysql-cluster80-community-minimal $MYSQL_SERVER_PACKAGE \
   && microdnf clean all \
   && mkdir /docker-entrypoint-initdb.d
 
@@ -42,6 +42,6 @@ COPY cnf/mysql-cluster.cnf /etc/
 
 ENTRYPOINT ["/entrypoint.sh"]
 HEALTHCHECK CMD /healthcheck.sh
-EXPOSE 3306 33060 2202 1186
+EXPOSE 3306 33060-33061 2202 1186
 CMD ["mysqld"]
 

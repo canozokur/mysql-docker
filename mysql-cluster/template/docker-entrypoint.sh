@@ -86,11 +86,19 @@ if [ "$1" = 'mysqld' ]; then
 			chown mysql:mysql "$DATADIR"
 		fi
 
-		echo '[Entrypoint] Initializing database'
-		%%DATABASE_INIT%%
-		echo '[Entrypoint] Database initialized'
+		# The user can set a default_timezone either in a my.cnf file
+		# they mount into the container or on command line
+		# (`docker run mysql/mysql-server:8.0 --default-time-zone=Europe/Berlin`)
+		# however the timezone tables will only be populated in a later
+		# stage of this script. By using +00:00 as timezone we override
+		# the user's choice during initialization. Later the server
+		# will be restarted using the user's option.
 
-		%%INIT_STARTUP%%
+		echo '[Entrypoint] Initializing database'
+		"$@" --user=$MYSQLD_USER --initialize-insecure  --default-time-zone=+00:00
+
+		echo '[Entrypoint] Database initialized'
+		"$@" --user=$MYSQLD_USER --daemonize --skip-networking --socket="$SOCKET" --default-time-zone=+00:00
 
 		# To avoid using password on commandline, put it in a temporary file.
 		# The file is only populated when and if the root password is set.

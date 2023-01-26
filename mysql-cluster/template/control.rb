@@ -4,18 +4,18 @@ control 'container' do
     it { should exist }
     it { should be_running }
     its('repo') { should eq 'mysql/mysql-cluster' }
-    its('ports') { should eq '1186/tcp, 2202/tcp, 3306/tcp, 33060/tcp' }
+    its('ports') { should eq '%%PORTS%%' }
     its('command') { should match '/entrypoint.sh.*' }
   end
 end
 control 'packages' do
   impact 0.5
-  describe package('mysql-cluster-community-server-minimal') do
+  describe package('%%MYSQL_SERVER_PACKAGE_NAME%%') do
     it { should be_installed }
-    its ('version') { should match '%%MYSQL_CLUSTER_VERSION%%.*' }
+    its ('version') { should match '%%MYSQL_VERSION%%.*' }
   end
-  describe package('mysql-shell') do
+  describe package('%%MYSQL_SHELL_PACKAGE_NAME%%') do
     it { should be_installed }
-    its ('version') { should match '%%MYSQL_SHELL_VERSION%%.*' }
+    its ('version') { should match '%%MYSQL_VERSION%%.*' }
   end
 end
